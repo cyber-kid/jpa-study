@@ -1,8 +1,6 @@
 package com.home;
 
-import com.home.entities.Address;
-import com.home.entities.Department;
-import com.home.entities.Employee;
+import com.home.entities.*;
 import com.home.service.EmployeeService;
 import com.home.utils.PersistenceUtils;
 
@@ -13,12 +11,6 @@ public class JpaRunner {
     public static void main(String[] args) {
         EmployeeService service = new EmployeeService();
         EntityManager em = PersistenceUtils.getEntityManager();
-
-        /* Clear all tables */
-
-        em.getTransaction().begin();
-        service.clearAllTables(em);
-        em.getTransaction().commit();
 
         /* Add new department */
 
@@ -74,6 +66,39 @@ public class JpaRunner {
         System.out.println("Employee is: " + service.findEmployeeById(employeeId, em));
 
         em.getTransaction().commit();
+
+        /* Add phones to employee */
+
+        em.getTransaction().begin();
+        employee = service.findEmployeeById(employeeId, em);
+
+        Phone home = new Phone();
+        home.setPhoneType(PhoneType.HOME);
+        home.setPhoneNumber("+666");
+        home.setEmployee(employee);
+
+        Phone mobile = new Phone();
+        mobile.setPhoneType(PhoneType.MOBILE);
+        mobile.setPhoneNumber("+333");
+        mobile.setEmployee(employee);
+
+        employee.getPhones().put(home.getPhoneType(), home);
+        employee.getPhones().put(mobile.getPhoneType(), mobile);
+
+        em.getTransaction().commit();
+
+        employee = service.findEmployeeById(employeeId, em);
+
+        System.out.println("Employee id: " + employee.getId());
+        System.out.println("Employee home phone number: " + employee.getPhones().get(PhoneType.HOME));
+        System.out.println("Employee mobile phone number: " + employee.getPhones().get(PhoneType.MOBILE));
+
+        /* List all departments */
+
+        System.out.println("List all departments");
+        for (Department department: service.findAllDepartments(em)) {
+            System.out.println(department);
+        }
 
         em.close();
         PersistenceUtils.destroyEntityManagerFactory();

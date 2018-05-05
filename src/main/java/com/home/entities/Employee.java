@@ -2,8 +2,7 @@ package com.home.entities;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "EMPLOYEES")
@@ -30,6 +29,12 @@ public class Employee {
     private LocalDate dob;
 
     private int salary;
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @MapKey(name = "phoneType")
+    @MapKeyEnumerated(EnumType.STRING)
+    private Map<PhoneType, Phone> phones = new HashMap<>();
+//    private List<Phone> phones = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -77,6 +82,14 @@ public class Employee {
 
     public void setDob(LocalDate dob) {
         this.dob = dob;
+    }
+
+    public Map<PhoneType, Phone> getPhones() {
+        return phones;
+    }
+
+    public void setPhones(Map<PhoneType, Phone> phones) {
+        this.phones = phones;
     }
 
     @Override

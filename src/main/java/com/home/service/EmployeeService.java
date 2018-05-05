@@ -3,8 +3,12 @@ package com.home.service;
 import com.home.entities.Department;
 import com.home.entities.Employee;
 
-import javax.persistence.*;
-import java.time.LocalDate;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,8 +35,13 @@ public class EmployeeService {
     }
 
     public List<Department> findAllDepartments(EntityManager entityManager) {
-        String sql = "select d from Department d";
-        TypedQuery<Department> query = entityManager.createQuery(sql, Department.class);
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+        CriteriaQuery<Department> criteriaQuery = cb.createQuery(Department.class);
+        Root<Department> dept = criteriaQuery.from(Department.class);
+        criteriaQuery.select(dept);
+
+        TypedQuery<Department> query = entityManager.createQuery(criteriaQuery);
         return query.getResultList();
     }
 
@@ -69,10 +78,14 @@ public class EmployeeService {
     }
 
     public void clearAllTables(EntityManager entityManager) {
+        String deletePhones = "delete from Phone";
         String deleteEmployees = "delete from Employee";
         String deleteDepartments = "delete from Department";
 
-        Query query = entityManager.createQuery(deleteEmployees);
+        Query query = entityManager.createQuery(deletePhones);
+        query.executeUpdate();
+
+        query = entityManager.createQuery(deleteEmployees);
         query.executeUpdate();
 
         query = entityManager.createQuery(deleteDepartments);
